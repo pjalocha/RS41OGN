@@ -122,21 +122,21 @@ class UBX_CFG_PRT         // 0x06 0x00
    uint16_t reserved2;
 } ;
 
-/*
 class UBX_CFG_MSG         // 0x06 0x01
 { public:
    uint8_t msgClass;      // 0xF0:00=GGA, 0xF0:02=GSA, 0xF0:04=RMC, 0xF0:41=TXT
    uint8_t msgID;
    uint8_t rate;          // message send rate
 } ;
-*/
 
+/*
 class UBX_CFG_MSG         // 0x06 0x01
 { public:
    uint8_t msgClass;      // 0xF0:00=GGA, 0xF0:02=GSA, 0xF0:04=RMC, 0xF0:41=TXT
    uint8_t msgID;
    uint8_t rate[6];       // message send rate
 } ;
+*/
 
 class UBX_CFG_RATE        // 0x06 0x08
 { public:

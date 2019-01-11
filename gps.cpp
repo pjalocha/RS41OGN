@@ -179,24 +179,23 @@ static void GPS_BurstStart(void)                                           // wh
       { // Format_String(CONS_UART_Write, "CFG_NAV5 query...\n");
 #ifdef WITH_GPS_UBX
         UBX_RxMsg::Send(0x06, 0x24, GPS_UART_Write);                     // send the query for the navigation mode setting
-/*
         if(!GPS_Status.NMEA)                                             // if NMEA sentences are not there
-        { UBX_CFG_MSG CFG_MSG;
-          CFG_MSG.msgClass = 0xF0;
-          CFG_MSG.rate[0]  =    1;
-          CFG_MSG.rate[1]  =    1;
-          CFG_MSG.rate[2]  =    1;
-          CFG_MSG.rate[3]  =    1;
-          CFG_MSG.rate[4]  =    1;
-          CFG_MSG.rate[5]  =    1;
-          CFG_MSG.msgID    = 0x00;
+        { UBX_CFG_MSG CFG_MSG;                                           // send CFG_MSG to enable the NMEA sentences
+          CFG_MSG.msgClass = 0xF0;                                       // NMEA class
+          CFG_MSG.rate     =    1;                                       // send every measurement event
+          // CFG_MSG.rate[0]  =    1;
+          // CFG_MSG.rate[1]  =    1;
+          // CFG_MSG.rate[2]  =    1;
+          // CFG_MSG.rate[3]  =    1;
+          // CFG_MSG.rate[4]  =    1;
+          // CFG_MSG.rate[5]  =    1;
+          CFG_MSG.msgID    = 0x00;                                        // ID for GGA
           UBX_RxMsg::Send(0x06, 0x01, GPS_UART_Write, (uint8_t *)(&CFG_MSG), sizeof(CFG_MSG));
-          CFG_MSG.msgID    = 0x02;
+          CFG_MSG.msgID    = 0x02;                                        // ID for RMC
           UBX_RxMsg::Send(0x06, 0x01, GPS_UART_Write, (uint8_t *)(&CFG_MSG), sizeof(CFG_MSG));
-          CFG_MSG.msgID    = 0x04;
+          CFG_MSG.msgID    = 0x04;                                        // ID for GSA
           UBX_RxMsg::Send(0x06, 0x01, GPS_UART_Write, (uint8_t *)(&CFG_MSG), sizeof(CFG_MSG));
         }
-*/
 #endif
       }
       if(!GPS_Status.BaudConfig)                                             // if GPS baud config is not done yet
@@ -448,7 +447,7 @@ static void GPS_UBX(void)                                                       
   GPS_Status.BaudConfig = (GPS_getBaudRate() == GPS_TargetBaudRate);
   LED_PCB_Flash(2);
   // DumpUBX();
-  Position[PosIdx].ReadUBX(UBX);
+  // Position[PosIdx].ReadUBX(UBX);
 #ifdef WITH_GPS_UBX_PASS
   { xSemaphoreTake(CONS_Mutex, portMAX_DELAY);                                    // send ther UBX packet to the console
     UBX.Send(CONS_UART_Write);
@@ -474,7 +473,7 @@ static void GPS_UBX(void)                                                       
     if(CFG->baudRate==GPS_TargetBaudRate) GPS_Status.BaudConfig=1;                // if baudrate same as our target then declare the baud config is done
     else                                                                          // otherwise use the received packet as the template
     { CFG->baudRate=GPS_TargetBaudRate;                                           // set the baudrate to our target
-      CFG->outProtoMask|0x02;                                                     // enable NMEA protocol
+      CFG->outProtoMask|=0x02;                                                    // enable NMEA protocol
       UBX.RecalcCheck();                                                          // reclaculate the check sum
 #ifdef DEBUG_PRINT
       xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
