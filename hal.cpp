@@ -91,38 +91,38 @@ void RFM_SPI_Init(void)
   GPIO_InitTypeDef GPIO_Conf;
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-
-  GPIO_Conf.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_15;        // PB13 = SPI2_SCK, PB15 - SPI2_MOSI
-  GPIO_Conf.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_15;        // PB13=SPI2_SCK, PB15=SPI2_MOSI
+  GPIO_Conf.GPIO_Mode = GPIO_Mode_AF_PP;                 // both pins are outputs
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOB, &GPIO_Conf);
 
   GPIO_Conf.GPIO_Pin = GPIO_Pin_14;                      // PB14 = SPI2_MISO
-  GPIO_Conf.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Conf.GPIO_Mode = GPIO_Mode_IN_FLOATING;           // input
   GPIO_Init(GPIOB, &GPIO_Conf);
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-
   GPIO_Conf.GPIO_Pin = GPIO_Pin_13;                      // PC13 = si4032 NSS
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
-  GPIO_Init(GPIOC,&GPIO_Conf);
-  GPIO_SetBits  (GPIOC, GPIO_Pin_13);                    // set HIGH = inactive
+  GPIO_Init(GPIOC, &GPIO_Conf);
+  GPIO_SetBits(GPIOC, GPIO_Pin_13);                      // set HIGH = inactive
 
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
   SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
   SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
+  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
   SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+  SPI_InitStructure.SPI_NSS  = SPI_NSS_Soft;
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; // _16
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI2, &SPI_InitStructure);
-  SPI_SSOutputCmd(SPI2, ENABLE);
+  SPI_CalculateCRC(SPI2, DISABLE);
+  // SPI_SSOutputCmd(SPI2, ENABLE);
   SPI_Cmd(SPI2, ENABLE);
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_Init(SPI2, &SPI_InitStructure);
+  // SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+  // SPI_Init(SPI2, &SPI_InitStructure);
 }
 
 // ======================================================================
