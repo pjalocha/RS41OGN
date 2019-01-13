@@ -14,6 +14,30 @@
 #include "uart1.h"
 #include "uart3.h"
 
+// ======================================================================
+// list of (known) STM32F1 pins
+
+// PA5  = ADC1 AIN
+// PA6  = ADC1 AIN
+// PA9  = UART1_TX (GPS)
+// PA10 = UART1_RX (GPS)
+// PA11 =
+// PA12 = ??
+
+// PB7  = Green LED, low-active
+// PB8  = Red   LED, low-active
+// PB9  =
+// PB10 = UART3_TX
+// PB11 = UART3_RX
+// PB12 =
+// PB13 = SPI2_SCK
+// PB14 = SPI2_MISO
+// PB15 = SPI2_MOSI
+
+// PC13 = Si4032 chip select (with SPI2)
+
+// ======================================================================
+
 // #define ADC1_DR_Address    ((uint32_t)0x4001244C)
 
 #if defined(STM32F10X_CL)
