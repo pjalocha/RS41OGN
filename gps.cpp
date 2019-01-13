@@ -21,9 +21,9 @@
 
 // #define DEBUG_PRINT
 
-// #ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
 static char Line[128];
-// #endif
+#endif
 
 // ----------------------------------------------------------------------------
 
@@ -251,7 +251,7 @@ static void GPS_BurstComplete(void)                                        // wh
            else { GPS->Pressure*=2; GPS->StdAltitude=StdAlt2; }
   }
 #endif
-// #ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
   Position[PosIdx].PrintLine(Line);                                   // print out the GPS position in a single-line format
   xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
   Format_UnsDec(CONS_UART_Write, TimeSync_Time()%60, 2);
@@ -263,7 +263,7 @@ static void GPS_BurstComplete(void)                                        // wh
   CONS_UART_Write('0'+PosIdx); CONS_UART_Write(':'); CONS_UART_Write(' ');
   Format_String(CONS_UART_Write, Line);
   xSemaphoreGive(CONS_Mutex);
-// #endif
+#endif
   if(Position[PosIdx].hasGPS)                                              // GPS position data complete
   { Position[PosIdx].isReady=1;                                            // mark this record as ready for processing => producing packets for transmission
     if(Position[PosIdx].isTimeValid())                                     // if time is valid already
