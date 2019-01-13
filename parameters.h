@@ -150,7 +150,7 @@ class FlashParameters
     TimeCorr       =         0; // [sec]
     GeoidSepar     =    10*DEFAULT_GeoidSepar; // [0.1m]
 
-    FreqPlan       =         0; // [0..5]
+    FreqPlan       =    DEFAULT_FreqPlan; // [0..5]
     PPSdelay       =    DEFAULT_PPSdelay; // [ms]
 
     for(uint8_t Idx=0; Idx<InfoParmNum; Idx++)

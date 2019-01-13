@@ -4,10 +4,11 @@
 #define HARDWARE_ID 0x01
 #define SOFTWARE_ID 0x01
 
-#define DEFAULT_AcftType        1          // [0..15] default aircraft-type: glider
-#define DEFAULT_GeoidSepar     40          // [m]
-#define DEFAULT_CONbaud    115200
-#define DEFAULT_PPSdelay       80
+#define DEFAULT_AcftType        1         // [0..15] default aircraft-type: glider
+#define DEFAULT_GeoidSepar     40         // [m]
+#define DEFAULT_CONbaud    115200         // [bps]
+#define DEFAULT_PPSdelay       80         // [ms]
+#define DEFAULT_FreqPlan        5         //
 
 #define UART1_RxFIFO_Size 128             // GPS UART
 #define UART1_TxFIFO_Size  32
