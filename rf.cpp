@@ -5,22 +5,8 @@
 
 #include "timesync.h"
 
-// OGNv1 SYNC:       0x0AF3656C encoded in Manchester
-// static const uint8_t OGN1_SYNC[8] = { 0xAA, 0x66, 0x55, 0xA5, 0x96, 0x99, 0x96, 0x5A };
-// OGNv2 SYNC:       0xF56D3738 encoded in Machester
-// static const uint8_t OGN2_SYNC[8] = { 0x55, 0x99, 0x96, 0x59, 0xA5, 0x95, 0xA5, 0x6A };
-//
-//
-// #ifdef WITH_OGN1
-// static const uint8_t *OGN_SYNC = OGN1_SYNC;
-// #endif
-
-// #ifdef WITH_OGN2
-// static const uint8_t *OGN_SYNC = OGN2_SYNC;
-// #endif
-
-const uint32_t OGN1_SYNC = 0x0AF3656C;
-const uint32_t OGN2_SYNC = 0xF56D3738;
+const uint32_t OGN1_SYNC = 0x0AF3656C; // OGN SYNC
+const uint32_t OGN2_SYNC = 0xF56D3738; // OGNv2 SYNC
 
 #ifdef WITH_OGN1
 static const uint32_t OGN_SYNC = OGN1_SYNC;
@@ -32,7 +18,8 @@ static const uint32_t OGN_SYNC = OGN2_SYNC;
 
 static RFM_TRX           TRX;               // radio transceiver
 
-        int8_t       RF_Temp;               // [degC] temperature of the RF chip: uncalibrated
+        int16_t       RF_Temp;              // [0.1degC] temperature of the RF chip: uncalibrated
+       uint16_t       RF_VCC;               // [0.01V]
 
 static uint32_t  RF_SlotTime;               // [sec] UTC time which belongs to the current time slot (0.3sec late by GPS UTC)
        FreqPlan  RF_FreqPlan;               // frequency hopping pattern calculator
@@ -43,36 +30,14 @@ static uint32_t  RF_SlotTime;               // [sec] UTC time which belongs to t
 
       uint32_t RX_Random=0x12345678;        // Random number from LSB of RSSI readouts
 
-/*
-static void SetTxChannel(uint8_t TxChan=RX_Channel)         // default channel to transmit is same as the receive channel
-{ TRX.WriteTxPower(Parameters.getTxPower());                // set TX for transmission
-  TRX.setChannel(TxChan&0x7F);
-  TRX.WriteSYNC(8, 7, OGN_SYNC); }                          // Full SYNC for TX
-
-static uint8_t Transmit(uint8_t TxChan, const uint8_t *PacketByte)
-{
-  if(PacketByte==0) return 0;                                   // if no packet to send: simply return
-
+static uint8_t Transmit(const uint8_t *PacketByte)
+{ if(PacketByte==0) return 0;                                   // if no packet to send: simply return
 #ifdef WITH_LED_TX
   LED_TX_Flash(20);
 #endif
-  TRX.WriteMode(RF_OPMODE_STANDBY);                              // switch to standby
-  vTaskDelay(1);
-  SetTxChannel(TxChan);
-
-  TRX.ClearIrqFlags();
   TRX.WritePacket(PacketByte);                                   // write packet into FIFO
-  TRX.WriteMode(RF_OPMODE_TRANSMITTER);                          // transmit
-  vTaskDelay(5);                                                 // wait 5ms
-
-  uint8_t Break=0;
-  for(uint16_t Wait=400; Wait; Wait--)                           // wait for transmission to end
-  { uint16_t Flags=TRX.ReadIrqFlags();
-    // if(Mode!=RF_OPMODE_TRANSMITTER) break;
-    if(Flags&RF_IRQ_PacketSent) Break++;
-    if(Break>=2) break; }
-  TRX.WriteMode(RF_OPMODE_STANDBY);                              // switch to standy
-
+  TRX.Transmit();                                                // trigger the transmission
+  vTaskDelay(6);
   return 1; }
 
 static uint32_t IdleUntil(TickType_t End)
@@ -83,18 +48,17 @@ static uint32_t IdleUntil(TickType_t End)
     vTaskDelay(1); }
   return Count; }
 
-static void TimeSlot(uint8_t TxChan, uint32_t SlotLen, const uint8_t *PacketByte, uint32_t TxTime=0)
+static void TimeSlot(uint32_t SlotLen, const uint8_t *PacketByte, uint32_t TxTime=0)
 { TickType_t Start = xTaskGetTickCount();                                  // when the slot started
   TickType_t End   = Start + SlotLen;                                      // when should it end
-  uint32_t MaxTxTime = SlotLen-8-MaxWait;                                  // time limit when transmision could start
+  uint32_t MaxTxTime = SlotLen-8;                                          // time limit when transmision could start
   if( (TxTime==0) || (TxTime>=MaxTxTime) ) TxTime = RX_Random%MaxTxTime;   // if TxTime out of limits, setup a random TxTime
   TickType_t Tx    = Start + TxTime;                                       // Tx = the moment to start transmission
-  IdleUntil(Tx);                                                        // listen until this time comes
+  IdleUntil(Tx);                                                           // listen until this time comes
   if( (TX_Credit) && (PacketByte) )                                        // when packet to transmit is given and there is still TX $
-    TX_Credit-=Transmit(TxChan, PacketByte, Rx_RSSI, MaxWait);             // attempt to transmit the packet
-  IdleUntil(End);                                                       // listen till the end of the time-slot
+    TX_Credit-=Transmit(PacketByte);                                       // attempt to transmit the packet
+  IdleUntil(End);                                                          // listen till the end of the time-slot
 }
-*/
 
 static void SetFreqPlan(void)                                // set the RF TRX according to the selected frequency hopping plan
 { TRX.setBaseFrequency(RF_FreqPlan.BaseFreq);                // set the base frequency (recalculate to RFM69 internal synth. units)
@@ -111,10 +75,9 @@ static uint8_t StartRFchip(void)
   vTaskDelay(2);                                                // wait 2ms
   SetFreqPlan();                                                // set TRX base frequency and channel separation after the frequency hop$
   TRX.Configure(0, OGN_SYNC);                                   // setup RF chip parameters and set to channel #0
-  // TRX.WriteMode(RF_OPMODE_STANDBY);                          // set RF chip mode to STANDBY
   TRX.WriteTxPower(Parameters.RFchipTxPower);                   // [dBm]
   uint8_t Version = TRX.ReadVersion();
-// #ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
   xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
   Format_String(CONS_UART_Write, "StartRFchip() v");
   Format_Hex(CONS_UART_Write, Version);
@@ -127,7 +90,7 @@ static uint8_t StartRFchip(void)
   Format_String(CONS_UART_Write, "kHz\n");
   TRX.RegDump(CONS_UART_Write);
   xSemaphoreGive(CONS_Mutex);
-// #endif
+#endif
   return Version; }                                          // read the RF chip version and return it
 
 extern "C"
@@ -142,10 +105,10 @@ extern "C"
   TRX.Deselect     = RFM_Deselect;
   TRX.TransferByte = RFM_TransferByte;
 #endif
-  TRX.DIO0_isOn    = RFM_IRQ_isOn;
-  TRX.RESET        = RFM_RESET;
+  TRX.DIO0_isOn    = RFM_IRQ_isOn;              // dummy call
+  TRX.RESET        = RFM_RESET;                 // dummy call
 
-  RF_FreqPlan.setPlan(Parameters.FreqPlan);     // 1 = Europe/Africa, 2 = USA/CA, 3 = Australia and South America
+  RF_FreqPlan.setPlan(Parameters.FreqPlan);     // 1 = Europe/Africa:868MHz, 5 = Europe/Africe:433MHz
 
   vTaskDelay(5);
 
@@ -167,27 +130,63 @@ extern "C"
 
   TX_Credit      = 0;    // count slots and packets transmitted: to keep the rule of 1% transmitter duty cycle
 
-  // TRX.WriteMode(RF_OPMODE_STANDBY);
-
   OGN_TxPacket<OGN_Packet> TxPacket;
   TxPacket.Packet.HeaderWord=0;
-  TxPacket.Packet.Header.Address=0x123456;
-  TxPacket.Packet.Header.AddrType=0x0;
+  TxPacket.Packet.Header.Address=Parameters.Address;
+  TxPacket.Packet.Header.AddrType=Parameters.AddrType;
   TxPacket.Packet.calcAddrParity();
 
   for( ; ; )
-  { vTaskDelay(100);
-    GPS_Position *Position = GPS_getPosition(); if(Position==0) continue;
-    TxPacket.Packet.Position.AcftType=0xF;
-    Position->Encode(TxPacket.Packet);
-    TxPacket.Packet.Whiten();
-    TxPacket.calcFEC();
-    TRX.WritePacket((uint8_t *)(&TxPacket));
-    TRX.Transmit();
-    vTaskDelay(100);
+  { do
+    { vTaskDelay(1); }
+    while(TimeSync_msTime()<290);                // wait till 300ms after PPS
+
+    SetFreqPlan();
+    RF_Temp = TRX.ReadChipTemp();
+    RF_VCC  = TRX.ReadBatVolt();
+    StartRFchip();
+
+    GPS_Position *Position = GPS_getPosition();
+    if( Position && Position->hasGPS && Position->isValid() )
+    { TxPacket.Packet.Position.AcftType=Parameters.AcftType;
+      Position->Encode(TxPacket.Packet);
+      TxPacket.Packet.Whiten();
+      TxPacket.calcFEC();
+      OGN_TxPacket<OGN_Packet> *TxPkt=RF_TxFIFO.getWrite();
+      *TxPkt = TxPacket;
+      RF_TxFIFO.Write(); }
+
+    RF_SlotTime = TimeSync_Time();
+    uint8_t TxChan = RF_FreqPlan.getChannel(RF_SlotTime, 0, 1);                // tranmsit channel
+    TRX.setChannel(TxChan);
+
+    TX_Credit+=2; if(TX_Credit>7200) TX_Credit=7200;                           // count the transmission credit
+    XorShift32(RX_Random);
+    uint32_t TxTime = (RX_Random&0x3F)+1; TxTime*=6; TxTime+=50;               // random transmission time: (1..64)*6+50 [ms]
+
+    const uint8_t *TxPktData0=0;
+    const uint8_t *TxPktData1=0;
+    const OGN_TxPacket<OGN_Packet> *TxPkt0 = RF_TxFIFO.getRead(0);             // get 1st packet from TxFIFO
+    const OGN_TxPacket<OGN_Packet> *TxPkt1 = RF_TxFIFO.getRead(1);             // get 2nd packet from TxFIFO
+    if(TxPkt0) TxPktData0=TxPkt0->Byte();                                      // if 1st is not NULL then get its data
+    if(TxPkt1) TxPktData1=TxPkt1->Byte();                                      // if 2nd if not NULL then get its data
+          else TxPktData1=TxPktData0;                                          // but if NULL then take copy of the 1st packet
+
+    TimeSlot(800-TimeSync_msTime(), TxPktData0, TxTime);                       // run a Time-Slot till 0.800sec
+
+    TxChan = RF_FreqPlan.getChannel(RF_SlotTime, 1, 1);
+
+    XorShift32(RX_Random);
+    TxTime = (RX_Random&0x3F)+1; TxTime*=6;
+
+    TimeSlot(1250-TimeSync_msTime(), TxPktData1, TxTime);
+
+    if(TxPkt0) RF_TxFIFO.Read();
+    if(TxPkt1) RF_TxFIFO.Read();
   }
 
 }
+
 
 
 
