@@ -47,6 +47,7 @@ void  GPS_UART_Write      (char     Byte); // blocking
 void  GPS_UART_SetBaudrate(int BaudRate);
 
 void LED_PCB_Flash(uint8_t Time);     // [ms] turn on the PCB LED for a given time
+void LED_TX_Flash(uint8_t Time);     // [ms] turn on the PCB LED for a given time
 
 // =========================================================================================================
 

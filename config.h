@@ -22,7 +22,7 @@
 // #define WITH_GPS_UBX_PASS
 #define WITH_GPS_CONFIG                   // try to setup the GPS baudrate and navigation mode
 
-#define WITH_TX_LED
+#define WITH_LED_TX
 
 #define WITH_FLASHLOG
 

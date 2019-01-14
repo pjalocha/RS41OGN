@@ -90,7 +90,7 @@
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK		1                                  // to (light) sleep the CPU when idle
 #define configUSE_TICK_HOOK		1
-#define configCPU_CLOCK_HZ		( ( unsigned long )12000000 )      // 24 or 12 MHz clock (after PLL)
+#define configCPU_CLOCK_HZ		( ( unsigned long )12000000 )      // 6 or 12 MHz clock (after PLL)
 #define configTICK_RATE_HZ		( ( TickType_t ) 1000 )            // 1000Hz = 1 tick/ms
 #define configMAX_PRIORITIES		( 5 )
 #define configMINIMAL_STACK_SIZE	( ( unsigned short ) 64 )

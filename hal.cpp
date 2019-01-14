@@ -56,12 +56,12 @@ void NVIC_InitTable(void)
 void RCC_Init(void)
 { ErrorStatus HSEStartUpStatus;
   RCC_DeInit();
-  RCC_HSEConfig(RCC_HSE_ON);
+  RCC_HSEConfig(RCC_HSE_ON);                                 // High Speed External oscilator thus Xtal
   HSEStartUpStatus = RCC_WaitForHSEStartUp();
   if(HSEStartUpStatus == SUCCESS)
   { FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
     FLASH_SetLatency(FLASH_Latency_2);
-    RCC_HCLKConfig(RCC_SYSCLK_Div2); // RCC_SYSCLK_Div2 => 12MHz, RCC_SYSCLK_Div4 => 6MHz
+    RCC_HCLKConfig(RCC_SYSCLK_Div2);                         // _Div2 => 12MHz, _Div4 => 6MHz
     RCC_PCLK2Config(RCC_HCLK_Div4);
     RCC_PCLK1Config(RCC_HCLK_Div2);
     RCC_SYSCLKConfig(RCC_SYSCLKSource_HSE);
@@ -75,26 +75,26 @@ void RCC_Init(void)
 void LED_Init(void)
 { GPIO_InitTypeDef GPIO_Conf;
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-  GPIO_Conf.GPIO_Pin = GPIO_Pin_12;
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_12;                          // this pin has to do with power control but not clear how ?
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOA, &GPIO_Conf);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_Conf.GPIO_Pin = LED_GREEN | LED_RED;
+  GPIO_Conf.GPIO_Pin = LED_GREEN | LED_RED;                  // red and green LED
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOB, &GPIO_Conf);
-  GPIO_ResetBits(GPIOA, GPIO_Pin_12);
+  GPIO_SetBits(GPIOA, GPIO_Pin_12);
   GPIO_SetBits(GPIOB, LED_RED);
   GPIO_SetBits(GPIOB, LED_GREEN);
 }
 
 void LED_RED_On(uint8_t ON)
-{ if(ON) GPIO_ResetBits(GPIOB, LED_RED);
+{ if(ON) GPIO_ResetBits(GPIOB, LED_RED);                     // LED control is low-active
     else GPIO_SetBits  (GPIOB, LED_RED); }
 
 void LED_GREEN_On(uint8_t ON)
-{ if(ON) GPIO_ResetBits(GPIOB, LED_GREEN);
+{ if(ON) GPIO_ResetBits(GPIOB, LED_GREEN);                   // LED control is low-active
     else GPIO_SetBits  (GPIOB, LED_GREEN); }
 
 // ======================================================================
