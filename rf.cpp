@@ -5,6 +5,10 @@
 
 #include "timesync.h"
 
+#ifdef WITH_FLASHLOG                  // log own track to unused Flash pages (STM32 only)
+#include "flashlog.h"
+#endif
+
 const uint32_t OGN1_SYNC = 0x0AF3656C; // OGN SYNC
 const uint32_t OGN2_SYNC = 0xF56D3738; // OGNv2 SYNC
 
@@ -96,6 +100,14 @@ static uint8_t StartRFchip(void)
 extern "C"
  void vTaskRF(void* pvParameters)
 {
+#ifdef WITH_FLASHLOG
+  uint16_t kB = FlashLog_OpenForWrite();
+  xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
+  Format_String(CONS_UART_Write, "TaskRF: ");
+  Format_UnsDec(CONS_UART_Write, kB);
+  Format_String(CONS_UART_Write, "KB FlashLog\n");
+  xSemaphoreGive(CONS_Mutex);
+#endif
   RF_TxFIFO.Clear();
 
 #ifdef USE_BLOCK_SPI
@@ -172,6 +184,9 @@ extern "C"
     if( Position && Position->hasGPS && Position->isValid() )
     { TxPacket.Packet.Position.AcftType=Parameters.AcftType;
       Position->Encode(TxPacket.Packet);
+#ifdef WITH_FLASHLOG
+      bool Written=FlashLog_Process(TxPacket.Packet, Position->getUnixTime());
+#endif
       TxPacket.Packet.Whiten();
       TxPacket.calcFEC();
       OGN_TxPacket<OGN_Packet> *TxPkt=RF_TxFIFO.getWrite();
