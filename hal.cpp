@@ -22,7 +22,7 @@
 // PA9  = UART1_TX (GPS)
 // PA10 = UART1_RX (GPS)
 // PA11 =
-// PA12 = ??
+// PA12 = power converter: HIGH = power OFF ?
 
 // PB7  = Green LED, low-active
 // PB8  = Red   LED, low-active
@@ -84,8 +84,8 @@ void LED_Init(void)
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOB, &GPIO_Conf);
-  GPIO_SetBits(GPIOA, GPIO_Pin_12);
-  GPIO_SetBits(GPIOB, LED_RED);
+  GPIO_ResetBits(GPIOA, GPIO_Pin_12);                        // turn the power ON
+  GPIO_SetBits(GPIOB, LED_RED);                              // turn off the LED's
   GPIO_SetBits(GPIOB, LED_GREEN);
 }
 
