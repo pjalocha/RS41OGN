@@ -195,6 +195,11 @@ uint16_t ADC1_Read(uint8_t Channel)                                     // conve
 // PA5 = ADC_Channel_5
 // PA6 = ADC_Channel_6
 
+uint16_t ADC_Read_Vsupply  (void) { return ADC1_Read(ADC_Channel_5); }
+uint16_t ADC_Read_PwrButton(void) { return ADC1_Read(ADC_Channel_6); }
+uint16_t ADC_Read_MCU_Vtemp(void) { return ADC1_Read(ADC_Channel_16); }
+uint16_t ADC_Read_MCU_Vref (void) { return ADC1_Read(ADC_Channel_17); }
+
 // ======================================================================
 
 SemaphoreHandle_t CONS_Mutex; // console port Mutex
