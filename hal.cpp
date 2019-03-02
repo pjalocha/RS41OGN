@@ -17,22 +17,23 @@
 // ======================================================================
 // list of (known) STM32F1 pins
 
-// PA5  = ADC1 AIN
-// PA6  = ADC1 AIN
+// PA5  = ADC1 AIN (Power vaoltage)
+// PA6  = ADC1 AIN (Power button)
 // PA9  = UART1_TX (GPS)
 // PA10 = UART1_RX (GPS)
 // PA11 =
 // PA12 = power converter: HIGH = power OFF ?
 
+// PB1  = internal resistive temperature sensor ?
 // PB7  = Green LED, low-active
 // PB8  = Red   LED, low-active
 // PB9  =
-// PB10 = UART3_TX
+// PB10 = UART3_TX (external serial port)
 // PB11 = UART3_RX
 // PB12 =
-// PB13 = SPI2_SCK
+// PB13 = SPI2_SCK  (Si4032 RF chip)
 // PB14 = SPI2_MISO
-// PB15 = SPI2_MOSI
+// PB15 = SPI2_MOSI (as well the modulation input of Si4032)
 
 // PC13 = Si4032 chip select (with SPI2)
 
@@ -90,6 +91,10 @@ void LED_Init(void)
   GPIO_SetBits(GPIOB, LED_RED);                              // turn off the LED's
   GPIO_SetBits(GPIOB, LED_GREEN);
 }
+
+void Power_On(uint8_t ON)
+{ if(ON) GPIO_ResetBits(GPIOA, GPIO_Pin_12);                 // Power control is low-active
+    else GPIO_SetBits  (GPIOA, GPIO_Pin_12); }
 
 void LED_RED_On(uint8_t ON)
 { if(ON) GPIO_ResetBits(GPIOB, LED_RED);                     // LED control is low-active
