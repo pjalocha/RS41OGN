@@ -31,6 +31,7 @@ uint16_t ADC_Read_MCU_Vref (void);
 
 void LED_Init(void);
 
+void Power_On(uint8_t ON);
 void LED_RED_On(uint8_t ON);
 void LED_GREEN_On(uint8_t ON);
 
