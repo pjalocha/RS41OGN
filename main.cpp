@@ -41,6 +41,7 @@ int main(void)
   NVIC_InitTable();
   LED_Init();                                  // green and red LED
   RFM_SPI_Init();                              // SPI2 for Si4032
+  ADC1_Init();                                 // ADC1 for power monitor and power button
 
   if(Parameters.ReadFromFlash()<0)             // read parameters from Flash
   { Parameters.setDefault();                   // if nov valid: set defaults

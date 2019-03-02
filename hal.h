@@ -22,6 +22,8 @@ void NVIC_InitTable(void);
 
 void RCC_Init(void);
 
+void ADC1_Init(void);
+
 void LED_Init(void);
 
 void LED_RED_On(uint8_t ON);
