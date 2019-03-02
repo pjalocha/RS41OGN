@@ -74,17 +74,19 @@ void RCC_Init(void)
 
 void LED_Init(void)
 { GPIO_InitTypeDef GPIO_Conf;
+
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
   GPIO_Conf.GPIO_Pin = GPIO_Pin_12;                          // this pin has to do with power control but not clear how ?
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOA, &GPIO_Conf);
+  GPIO_ResetBits(GPIOA, GPIO_Pin_12);                        // turn the power ON
+
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_Conf.GPIO_Pin = LED_GREEN | LED_RED;                  // red and green LED
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOB, &GPIO_Conf);
-  GPIO_ResetBits(GPIOA, GPIO_Pin_12);                        // turn the power ON
   GPIO_SetBits(GPIOB, LED_RED);                              // turn off the LED's
   GPIO_SetBits(GPIOB, LED_GREEN);
 }
@@ -196,9 +198,28 @@ uint16_t ADC1_Read(uint8_t Channel)                                     // conve
 // PA6 = ADC_Channel_6
 
 uint16_t ADC_Read_Vsupply  (void) { return ADC1_Read(ADC_Channel_5); }
-uint16_t ADC_Read_PwrButton(void) { return ADC1_Read(ADC_Channel_6); }
+uint16_t ADC_Read_Vbutton  (void) { return ADC1_Read(ADC_Channel_6); }
 uint16_t ADC_Read_MCU_Vtemp(void) { return ADC1_Read(ADC_Channel_16); }
 uint16_t ADC_Read_MCU_Vref (void) { return ADC1_Read(ADC_Channel_17); }
+
+/*
+
+Readout on external power:
+ADC: Vref=01643, Vtemp=01944, Vsupply=00037, Vbutton=00030
+ADC: Vref=01642, Vtemp=01944, Vsupply=00037, Vbutton=00031
+ADC: Vref=01642, Vtemp=01945, Vsupply=00037, Vbutton=00031
+ADC: Vref=01642, Vtemp=01944, Vsupply=00037, Vbutton=00030
+
+Readout after pressing the Power-button
+ADC: Vref=01643, Vtemp=01945, Vsupply=02264, Vbutton=02234
+ADC: Vref=01643, Vtemp=01944, Vsupply=02232, Vbutton=02203
+ADC: Vref=01643, Vtemp=01944, Vsupply=02238, Vbutton=02208
+ADC: Vref=01643, Vtemp=01943, Vsupply=02238, Vbutton=02208
+ADC: Vref=01643, Vtemp=01944, Vsupply=02245, Vbutton=02215
+ADC: Vref=01643, Vtemp=01945, Vsupply=02231, Vbutton=02201
+ADC: Vref=01642, Vtemp=01945, Vsupply=02291, Vbutton=02260
+
+*/
 
 // ======================================================================
 

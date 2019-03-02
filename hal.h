@@ -25,7 +25,7 @@ void RCC_Init(void);
 void ADC1_Init(void);
 uint16_t ADC1_Read(uint8_t Channel);
 uint16_t ADC_Read_Vsupply  (void);
-uint16_t ADC_Read_PwrButton(void);
+uint16_t ADC_Read_Vbutton  (void);
 uint16_t ADC_Read_MCU_Vtemp(void);
 uint16_t ADC_Read_MCU_Vref (void);
 

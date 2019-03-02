@@ -146,6 +146,28 @@ extern "C"
     RF_VCC  = TRX.ReadBatVolt();
     StartRFchip();
 
+    uint16_t MCU_Vref  = ADC_Read_MCU_Vref();
+    uint16_t MCU_Vtemp = ADC_Read_MCU_Vtemp();
+    uint16_t Vsupply   = ADC_Read_Vsupply();
+    uint16_t Vbutton   = ADC_Read_Vbutton();
+    uint16_t MCU_VCC   = ( ((uint32_t)120<<12)+(MCU_Vref>>1))/MCU_Vref; // [0.01V]
+     int16_t MCU_Temp  = 250 + ( ( ( (int32_t)1430 - ((int32_t)1200*(int32_t)MCU_Vtemp+(MCU_Vref>>1))/MCU_Vref )*(int32_t)37 +8 )>>4); // [0.1degC]
+    xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
+    Format_String(CONS_UART_Write, "ADC: Vref=");
+    Format_UnsDec(CONS_UART_Write, MCU_Vref, 4);
+    Format_String(CONS_UART_Write,", Vtemp=");
+    Format_UnsDec(CONS_UART_Write, MCU_Vtemp, 4);
+    Format_String(CONS_UART_Write,", Vsupply=");
+    Format_UnsDec(CONS_UART_Write, Vsupply, 4);
+    Format_String(CONS_UART_Write,", Vbutton=");
+    Format_UnsDec(CONS_UART_Write, Vbutton, 4);
+    Format_String(CONS_UART_Write,", VCC=");
+    Format_UnsDec(CONS_UART_Write, MCU_VCC, 4, 2);
+    Format_String(CONS_UART_Write,", Temp=");
+    Format_SignDec(CONS_UART_Write, MCU_Temp, 3, 1);
+    Format_String(CONS_UART_Write, "\n");
+    xSemaphoreGive(CONS_Mutex);
+
     GPS_Position *Position = GPS_getPosition();
     if( Position && Position->hasGPS && Position->isValid() )
     { TxPacket.Packet.Position.AcftType=Parameters.AcftType;
