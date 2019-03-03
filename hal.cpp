@@ -16,6 +16,7 @@
 
 // ======================================================================
 // list of (known) STM32F1 pins
+// many of these are thanks to Jarek, SP5JRM
 
 // PA0  (out) =
 // PA1  (in ) =
@@ -42,7 +43,7 @@
 // PB9  (out) =
 // PB10 (   ) = UART3_TX (external serial port)
 // PB11 (   ) = UART3_RX
-// PB12 (in ) =
+// PB12 (out) = but keep it as input, otherwise one of the GPS antenna heaters turns on
 // PB13 (out) = SPI2_SCK  (Si4032 RF chip)
 // PB14 (in ) = SPI2_MISO
 // PB15 (out) = SPI2_MOSI (as well the modulation input of Si4032)
@@ -119,7 +120,7 @@ void IO_Init(void)
   GPIO_Init(GPIOC, &GPIO_Conf);
 
   GPIO_ResetBits(GPIOA, GPIO_Pin_12);                        // turn the power ON
-  GPIO_SetBits(GPIOB, LED_RED);                              // turn off the red LED
+  GPIO_SetBits  (GPIOB, LED_RED);                            // turn off the red LED
   GPIO_ResetBits(GPIOB, LED_GREEN);                          // turn on the green LED
 }
 

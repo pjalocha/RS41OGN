@@ -4,6 +4,11 @@
 #define REG_OPMODE2                                 0x08 // rrrrArrF AutoTx, FIFO reset
 #define REG_XTAL                                    0x09 // Xtal load capacitance
 
+#define REG_GPIO0                                   0x0B // 
+#define REG_GPIO1                                   0x0C
+#define REG_GPIO2                                   0x0D
+#define REG_IOPORT                                  0x0E
+
 #define REG_ADCCONF                                 0x0F // ADC configuration: TSSSRRGG Trigger, Source, Ref, Gain
 #define REG_ADCOFS                                  0x10
 #define REG_ADC                                     0x11 // ADC output value

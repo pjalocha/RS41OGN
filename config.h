@@ -1,7 +1,7 @@
 #define WITH_OGN1                          // OGN protocol version 1/2
 #define OGN_Packet OGN1_Packet
 
-#define HARDWARE_ID 0x01
+#define HARDWARE_ID 0x03
 #define SOFTWARE_ID 0x01
 
 #define DEFAULT_AcftType        1         // [0..15] default aircraft-type: glider
@@ -9,6 +9,8 @@
 #define DEFAULT_CONbaud    115200         // [bps]
 #define DEFAULT_PPSdelay       80         // [ms]
 #define DEFAULT_FreqPlan        5         //
+#define DEFAULT_Hard       "RS41"
+#define DEFAULT_Soft       "0.0"
 
 #define UART1_RxFIFO_Size 128             // GPS UART
 #define UART1_TxFIFO_Size  32

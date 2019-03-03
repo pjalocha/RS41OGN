@@ -157,6 +157,8 @@ class FlashParameters
 
     for(uint8_t Idx=0; Idx<InfoParmNum; Idx++)
       InfoParmValue(Idx)[0] = 0;
+    strcpy(InfoParmValue(12), DEFAULT_Hard);
+    strcpy(InfoParmValue(13), DEFAULT_Soft);
 #ifdef WITH_BT_SPP
    getAprsCall(BTname);
 // #ifdef WITH_TBEAM
