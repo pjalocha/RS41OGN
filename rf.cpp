@@ -171,6 +171,7 @@ extern "C"
   TxPosPacket.Packet.Header.Address=Parameters.Address;
   TxPosPacket.Packet.Header.AddrType=Parameters.AddrType;
   TxPosPacket.Packet.calcAddrParity();
+  TxStatPacket.Packet.HeaderWord = TxPosPacket.Packet.HeaderWord;
 
   for( ; ; )
   { do
@@ -215,6 +216,15 @@ extern "C"
       TxPosPacket.calcFEC();
       OGN_TxPacket<OGN_Packet> *TxPkt=RF_TxFIFO.getWrite();
       *TxPkt = TxPosPacket;
+      RF_TxFIFO.Write(); }
+    if((GPS_Random&0x1F000)==0)
+    { TxStatPacket.Packet.Header.NonPos=1;
+      TxStatPacket.Packet.calcAddrParity();
+      ReadInfo(TxStatPacket.Packet);
+      TxStatPacket.Packet.Whiten();
+      TxStatPacket.calcFEC();
+      OGN_TxPacket<OGN_Packet> *TxPkt=RF_TxFIFO.getWrite();
+      *TxPkt = TxStatPacket;
       RF_TxFIFO.Write(); }
 
     RF_SlotTime = TimeSync_Time();
