@@ -16,6 +16,7 @@ extern           int32_t GPS_Longitude;     // [0.0001/60 deg]
 extern           int16_t GPS_GeoidSepar;    // [0.1m]
 extern          uint16_t GPS_LatCosine;     // [1.0/(1<<12)] Latitude Cosine for distance calculations
 extern          uint32_t GPS_TimeSinceLock; // [sec] time since GPS has a valid lock
+extern          uint32_t GPS_Random;
 extern          uint16_t GPS_PosPeriod;     // [0.01sec] how often (which period) the GPS/MAV is sending the positions
 
 typedef union

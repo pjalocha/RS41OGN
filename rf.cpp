@@ -55,7 +55,7 @@ static uint32_t  RF_SlotTime;               // [sec] UTC time which belongs to t
 
        uint16_t TX_Credit  =0;              // counts transmitted packets vs. time to avoid using more than 1% of the time
 
-      uint32_t RX_Random=0x12345678;        // Random number from LSB of RSSI readouts
+//      uint32_t RX_Random=0x12345678;        // Random number from LSB of RSSI readouts
 
 static uint8_t Transmit(const uint8_t *PacketByte)
 { if(PacketByte==0) return 0;                                   // if no packet to send: simply return
@@ -79,7 +79,7 @@ static void TimeSlot(uint32_t SlotLen, const uint8_t *PacketByte, uint32_t TxTim
 { TickType_t Start = xTaskGetTickCount();                                  // when the slot started
   TickType_t End   = Start + SlotLen;                                      // when should it end
   uint32_t MaxTxTime = SlotLen-8;                                          // time limit when transmision could start
-  if( (TxTime==0) || (TxTime>=MaxTxTime) ) TxTime = RX_Random%MaxTxTime;   // if TxTime out of limits, setup a random TxTime
+  if( (TxTime==0) || (TxTime>=MaxTxTime) ) TxTime = GPS_Random%MaxTxTime;  // if TxTime out of limits, setup a random TxTime
   TickType_t Tx    = Start + TxTime;                                       // Tx = the moment to start transmission
   IdleUntil(Tx);                                                           // listen until this time comes
   if( (TX_Credit) && (PacketByte) )                                        // when packet to transmit is given and there is still TX $
@@ -222,8 +222,8 @@ extern "C"
     TRX.setChannel(TxChan);
 
     TX_Credit+=2; if(TX_Credit>7200) TX_Credit=7200;                           // count the transmission credit
-    XorShift32(RX_Random);
-    uint32_t TxTime = (RX_Random&0x3F)+1; TxTime*=6; TxTime+=50;               // random transmission time: (1..64)*6+50 [ms]
+    XorShift32(GPS_Random);
+    uint32_t TxTime = (GPS_Random&0x3F)+1; TxTime*=6; TxTime+=50;              // random transmission time: (1..64)*6+50 [ms]
 
     const uint8_t *TxPktData0=0;
     const uint8_t *TxPktData1=0;
@@ -237,8 +237,8 @@ extern "C"
 
     TxChan = RF_FreqPlan.getChannel(RF_SlotTime, 1, 1);
 
-    XorShift32(RX_Random);
-    TxTime = (RX_Random&0x3F)+1; TxTime*=6;
+    XorShift32(GPS_Random);
+    TxTime = (GPS_Random&0x3F)+1; TxTime*=6;
 
     TimeSlot(1250-TimeSync_msTime(), TxPktData1, TxTime);
 

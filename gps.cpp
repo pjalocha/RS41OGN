@@ -1,3 +1,4 @@
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -52,6 +53,7 @@ static   TickType_t Burst_TickCount;       // [msec] TickCount when the data bur
           int32_t   GPS_Longitude = 0;     //
           int16_t   GPS_GeoidSepar= 0;     // [0.1m]
          uint16_t   GPS_LatCosine = 3000;  //
+         uint32_t   GPS_Random = 0x12345678; // random number from the LSB of the GPS data
 
          Status     GPS_Status;
 
@@ -215,6 +217,12 @@ static void GPS_BurstStart(void)                                           // wh
         GPS_Cmd[Len++]='\n';
         GPS_Cmd[Len]=0;
         Format_String(GPS_UART_Write, GPS_Cmd, Len, 0);
+#ifdef DEBUG_PRINT
+        xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
+        Format_String(CONS_UART_Write, "GPS <- ");
+        Format_String(CONS_UART_Write, GPS_Cmd, Len, 0);
+        xSemaphoreGive(CONS_Mutex);
+#endif
 #endif
 #ifdef WITH_GPS_SRF
         char GPS_Cmd[36];
@@ -236,6 +244,18 @@ static void GPS_BurstStart(void)                                           // wh
   else { QueryWait=0; }
 #endif // WITH_GPS_CONFIG
 }
+
+static void GPS_Random_Update(uint8_t Bit)
+{ GPS_Random = (GPS_Random<<1) | (Bit&1); }
+
+static void GPS_Random_Update(GPS_Position *Pos)
+{ if(Position==0) return;
+  GPS_Random_Update(Pos->Altitude);
+  GPS_Random_Update(Pos->Speed);
+  GPS_Random_Update(Pos->Latitude);
+  GPS_Random_Update(Pos->Longitude);
+  if(Pos->hasBaro) GPS_Random_Update(Pos->Pressure);
+  XorShift32(GPS_Random); }
 
 static void GPS_BurstComplete(void)                                        // when GPS has sent the essential data for position fix
 {
@@ -264,6 +284,7 @@ static void GPS_BurstComplete(void)                                        // wh
   Format_String(CONS_UART_Write, Line);
   xSemaphoreGive(CONS_Mutex);
 #endif
+  GPS_Random_Update(Position+PosIdx);
   if(Position[PosIdx].hasGPS)                                              // GPS position data complete
   { Position[PosIdx].isReady=1;                                            // mark this record as ready for processing => producing packets for transmission
     if(Position[PosIdx].isTimeValid())                                     // if time is valid already
