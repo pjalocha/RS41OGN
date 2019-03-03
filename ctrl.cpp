@@ -353,6 +353,8 @@ extern "C"
 void vTaskCTRL(void* pvParameters)
 {
 
+  vTaskDelay(750);                            // put some initial delay to easy the startup load
+
 #ifdef WITH_BT_PWR
   if (Parameters.BT_ON == 1)
     BT_PWR_On();

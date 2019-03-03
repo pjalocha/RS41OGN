@@ -123,6 +123,9 @@ static uint8_t StartRFchip(void)
 extern "C"
  void vTaskRF(void* pvParameters)
 {
+
+  vTaskDelay(500);                                           // put some initial delay not to start all devices at once
+
 #ifdef WITH_FLASHLOG
   uint16_t kB = FlashLog_OpenForWrite();
   xSemaphoreTake(CONS_Mutex, portMAX_DELAY);

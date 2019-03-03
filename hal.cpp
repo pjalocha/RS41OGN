@@ -17,25 +17,39 @@
 // ======================================================================
 // list of (known) STM32F1 pins
 
-// PA5  = ADC1 AIN (Power vaoltage)
-// PA6  = ADC1 AIN (Power button)
-// PA9  = UART1_TX (GPS)
-// PA10 = UART1_RX (GPS)
-// PA11 =
-// PA12 = power converter: HIGH = power OFF ?
+// PA0  (out) =
+// PA1  (in ) =
+// PA2  (in ) =
+// PA3  (out) =
+// PA4  (   ) =
+// PA5  (ain) = ADC1 AIN (Power vaoltage)
+// PA6  (ain) = ADC1 AIN (Power button)
+// PA7  (in ) =
+// PA8  (in ) =
+// PA9  (   ) = UART1_TX (GPS)
+// PA10 (   ) = UART1_RX (GPS)
+// PA11 (out) =
+// PA12 (out) = power converter: HIGH = power OFF ?
 
-// PB1  = internal resistive temperature sensor ?
-// PB7  = Green LED, low-active
-// PB8  = Red   LED, low-active
-// PB9  =
-// PB10 = UART3_TX (external serial port)
-// PB11 = UART3_RX
-// PB12 =
-// PB13 = SPI2_SCK  (Si4032 RF chip)
-// PB14 = SPI2_MISO
-// PB15 = SPI2_MOSI (as well the modulation input of Si4032)
+// PB1  (   ) = internal resistive temperature sensor ?
+// PB2  (out) =
+// PB3  (in ) =
+// PB4  (in ) =
+// PB5  (in ) =
+// PB6  (out) =
+// PB7  (out) = Green LED, low-active
+// PB8  (out) = Red   LED, low-active
+// PB9  (out) =
+// PB10 (   ) = UART3_TX (external serial port)
+// PB11 (   ) = UART3_RX
+// PB12 (in ) =
+// PB13 (out) = SPI2_SCK  (Si4032 RF chip)
+// PB14 (in ) = SPI2_MISO
+// PB15 (out) = SPI2_MOSI (as well the modulation input of Si4032)
 
-// PC13 = Si4032 chip select (with SPI2)
+// PC13 (out) = Si4032 chip select (with SPI2)
+// PC14 (out) =
+// PC15 (out) =
 
 // ======================================================================
 
@@ -73,23 +87,40 @@ void RCC_Init(void)
 #define LED_GREEN  GPIO_Pin_7
 #define LED_RED    GPIO_Pin_8
 
-void LED_Init(void)
+void IO_Init(void)
 { GPIO_InitTypeDef GPIO_Conf;
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-  GPIO_Conf.GPIO_Pin = GPIO_Pin_12;                          // this pin has to do with power control but not clear how ?
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_3 | GPIO_Pin_11 | GPIO_Pin_12; // PA12 is power ON(low)/OFF(high)
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOA, &GPIO_Conf);
-  GPIO_ResetBits(GPIOA, GPIO_Pin_12);                        // turn the power ON
+
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_7 | GPIO_Pin_8;
+  GPIO_Conf.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_Init(GPIOA, &GPIO_Conf);
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_Conf.GPIO_Pin = LED_GREEN | LED_RED;                  // red and green LED
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_6 | GPIO_Pin_9 | LED_GREEN | LED_RED;
   GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOB, &GPIO_Conf);
-  GPIO_SetBits(GPIOB, LED_RED);                              // turn off the LED's
-  GPIO_SetBits(GPIOB, LED_GREEN);
+
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_12;
+  GPIO_Conf.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_Init(GPIOB, &GPIO_Conf);
+
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+  GPIO_Conf.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15;
+  GPIO_Conf.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Conf.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_Init(GPIOC, &GPIO_Conf);
+
+  GPIO_ResetBits(GPIOA, GPIO_Pin_12);                        // turn the power ON
+  GPIO_SetBits(GPIOB, LED_RED);                              // turn off the red LED
+  GPIO_ResetBits(GPIOB, LED_GREEN);                          // turn on the green LED
 }
 
 void Power_On(uint8_t ON)

@@ -22,14 +22,7 @@ void NVIC_InitTable(void);
 
 void RCC_Init(void);
 
-void ADC1_Init(void);
-uint16_t ADC1_Read(uint8_t Channel);
-uint16_t ADC_Read_Vsupply  (void);
-uint16_t ADC_Read_Vbutton  (void);
-uint16_t ADC_Read_MCU_Vtemp(void);
-uint16_t ADC_Read_MCU_Vref (void);
-
-void LED_Init(void);
+void IO_Init(void);
 
 void Power_On(uint8_t ON);
 void LED_RED_On(uint8_t ON);
@@ -40,6 +33,13 @@ inline void LED_PCB_Off  (void) { LED_GREEN_On(0); }
 
 inline void LED_TX_On   (void) { LED_RED_On(1); }                   // LED on the PCB for vizual indications
 inline void LED_TX_Off  (void) { LED_RED_On(0); }
+
+void ADC1_Init(void);
+uint16_t ADC1_Read(uint8_t Channel);
+uint16_t ADC_Read_Vsupply  (void);
+uint16_t ADC_Read_Vbutton  (void);
+uint16_t ADC_Read_MCU_Vtemp(void);
+uint16_t ADC_Read_MCU_Vref (void);
 
 // =========================================================================================================
 

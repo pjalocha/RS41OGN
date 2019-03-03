@@ -744,7 +744,7 @@ void vTaskGPS(void* pvParameters)
   // PPS_TickCount=0;
   Burst_TickCount=0;
 
-  vTaskDelay(5);
+  vTaskDelay(250);                                                       // put some initial delay for lighter startup load
 
   xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
   Format_String(CONS_UART_Write, "TaskGPS:");

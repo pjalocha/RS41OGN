@@ -39,7 +39,7 @@ int main(void)
 {
   RCC_Init();                                  // CPU crystal and clock
   NVIC_InitTable();
-  LED_Init();                                  // green and red LED
+  IO_Init();                                   // power ctrl, LED, ...
   RFM_SPI_Init();                              // SPI2 for Si4032
   ADC1_Init();                                 // ADC1 for power monitor and power button
 
