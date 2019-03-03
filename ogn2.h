@@ -115,10 +115,10 @@ class OGN2_Packet          // Packet structure for the OGN tracker
    uint8_t  *Byte(void) const { return (uint8_t  *)&HeaderWord; } // packet as bytes
    uint32_t *Word(void) const { return (uint32_t *)&HeaderWord; } // packet as words
 
-   static const uint8_t InfoParmNum = 12; // [int]  number of info-parameters and their names
+   static const uint8_t InfoParmNum = 14; // [int]  number of info-parameters and their names
    static const char *InfoParmName(uint8_t Idx) { static const char *Name[InfoParmNum] =
                                                   { "Pilot", "Manuf", "Model", "Type", "SN", "Reg", "ID", "Class",
-                                                    "Task" , "Base" , "ICE"  , "PilotID" } ;
+                                                    "Task" , "Base" , "ICE"  , "PilotID", "Hard", "Soft" } ;
                                                   return Idx<InfoParmNum ? Name[Idx]:0; }
 
    void Dump(void) const
