@@ -9,6 +9,29 @@
 #include "flashlog.h"
 #endif
 
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+static uint16_t InfoParmIdx = 0;            // the round-robin index to info records in info packets
+
+static int ReadInfo(OGN1_Packet &Packet)
+{ Packet.clrInfo();
+  uint8_t ParmIdx;
+  for( ParmIdx=InfoParmIdx; ; )
+  { const char *Parm = Parameters.InfoParmValue(ParmIdx);
+    if(Parm)
+    { // printf("Parm[%d]=%s\n", ParmIdx, Parm);
+      if(Parm[0])
+      { int Add=Packet.addInfo(Parm, ParmIdx); if(Add==0) break; }
+    }
+    ParmIdx++; if(ParmIdx>=Parameters.InfoParmNum) ParmIdx=0;
+    if(ParmIdx==InfoParmIdx) break;
+  }
+  InfoParmIdx = ParmIdx;
+  Packet.setInfoCheck();
+  return Packet.Info.DataChars; }                                      // zero => no info parameters were stored
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+
 const uint32_t OGN1_SYNC = 0x0AF3656C; // OGN SYNC
 const uint32_t OGN2_SYNC = 0xF56D3738; // OGNv2 SYNC
 
@@ -142,11 +165,12 @@ extern "C"
 
   TX_Credit      = 0;    // count slots and packets transmitted: to keep the rule of 1% transmitter duty cycle
 
-  OGN_TxPacket<OGN_Packet> TxPacket;
-  TxPacket.Packet.HeaderWord=0;
-  TxPacket.Packet.Header.Address=Parameters.Address;
-  TxPacket.Packet.Header.AddrType=Parameters.AddrType;
-  TxPacket.Packet.calcAddrParity();
+  OGN_TxPacket<OGN_Packet> TxPosPacket;
+  OGN_TxPacket<OGN_Packet> TxStatPacket;
+  TxPosPacket.Packet.HeaderWord=0;
+  TxPosPacket.Packet.Header.Address=Parameters.Address;
+  TxPosPacket.Packet.Header.AddrType=Parameters.AddrType;
+  TxPosPacket.Packet.calcAddrParity();
 
   for( ; ; )
   { do
@@ -182,15 +206,15 @@ extern "C"
 
     GPS_Position *Position = GPS_getPosition();
     if( Position && Position->hasGPS && Position->isValid() )
-    { TxPacket.Packet.Position.AcftType=Parameters.AcftType;
-      Position->Encode(TxPacket.Packet);
+    { TxPosPacket.Packet.Position.AcftType=Parameters.AcftType;
+      Position->Encode(TxPosPacket.Packet);
 #ifdef WITH_FLASHLOG
-      bool Written=FlashLog_Process(TxPacket.Packet, Position->getUnixTime());
+      bool Written=FlashLog_Process(TxPosPacket.Packet, Position->getUnixTime());
 #endif
-      TxPacket.Packet.Whiten();
-      TxPacket.calcFEC();
+      TxPosPacket.Packet.Whiten();
+      TxPosPacket.calcFEC();
       OGN_TxPacket<OGN_Packet> *TxPkt=RF_TxFIFO.getWrite();
-      *TxPkt = TxPacket;
+      *TxPkt = TxPosPacket;
       RF_TxFIFO.Write(); }
 
     RF_SlotTime = TimeSync_Time();
