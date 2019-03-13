@@ -8,7 +8,9 @@
 #define DEFAULT_GeoidSepar     40         // [m]
 #define DEFAULT_CONbaud    115200         // [bps]
 #define DEFAULT_PPSdelay       80         // [ms]
-#define DEFAULT_FreqPlan        5         //
+// #define WITH_XTAL26MHZ                    // when with 26MHz XTAL
+// #define DEFAULT_FreqPlan        5         // then default plan is 433MHz
+#define DEFAULT_FreqPlan        0         //
 #define DEFAULT_Hard       "RS41"
 #define DEFAULT_Soft       "0.0"
 

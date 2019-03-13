@@ -212,7 +212,13 @@ class RFM_TRX
      WriteByte(TxPower, REG_TXPOWER); }
 
    void WriteCarrFreq(uint32_t Freq)                                   // [Hz]
-   { WriteCarrFreq_Xtal30MHz((((Freq/4)*15+6)/13)*4); }
+   {
+#ifdef WITH_XTAL26MHZ
+     WriteCarrFreq_Xtal30MHz((((Freq/4)*15+6)/13)*4);
+#else
+     WriteCarrFreq_Xtal30MHz(Freq);
+#endif
+   }
 
    void WriteCarrFreq_Xtal30MHz(uint32_t Freq)                         // [Hz]
    { uint8_t  HBsel=0; if(Freq>=480000000) { HBsel=0x20; Freq/=2; }    // high-band when >=480MHz
@@ -224,7 +230,13 @@ class RFM_TRX
    }
 
    void WriteFreqDev(uint32_t FreqDev)                                 // [Hz]
-   { WriteFreqDev_Xtal30MHz(((FreqDev*15+6)/13)); }
+   {
+#ifdef WITH_XTAL26MHZ
+     WriteFreqDev_Xtal30MHz(((FreqDev*15+6)/13));
+#else
+     WriteFreqDev_Xtal30MHz(FreqDev);
+#endif
+   }
 
    void WriteFreqDev_Xtal30MHz(uint32_t FreqDev)                       // [Hz]
    { uint16_t Fd = FreqDev/625;
@@ -233,7 +245,13 @@ class RFM_TRX
      WriteByte( 0x02, REG_MOD1); }                                     // Manchester encoding
 
    void WriteDataRate(uint32_t DataRate)                               // [Hz]
-   { WriteDataRate_Xtal30MHz(((DataRate*15+6)/13)); }
+   {
+#ifdef WITH_XTAL26MHZ
+     WriteDataRate_Xtal30MHz(((DataRate*15+6)/13));
+#else
+     WriteDataRate_Xtal30MHz(DataRate);
+#endif
+   }
 
    void WriteDataRate_Xtal30MHz(uint32_t DataRate)                     // [Hz]
    { uint16_t DR = ((DataRate<<10)+7812)/15625;
