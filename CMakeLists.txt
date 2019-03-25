@@ -27,7 +27,7 @@ add_definitions(-D__ASSEMBLY__)
 add_definitions(-DWITH_STM32)
 
 SET(LINKER_SCRIPT ${PROJECT_SOURCE_DIR}/arm-gcc-link.ld)
-SET(COMMON_FLAGS " -mcpu=cortex-m3 -mthumb -Wall -Wno-misleading-indentation -fno-exceptions -ffunction-sections -g -Os -g -nostartfiles ")
+SET(COMMON_FLAGS " -mcpu=cortex-m3 -mthumb -Wall -Wno-misleading-indentation -fno-exceptions -ffunction-sections -fdata-sections -g -Os -g -nostartfiles ")
 SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11")
 SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map=${CMAKE_BINARY_DIR}/${PROJECT_NAME}.map -lstdc++ -O3 -Wl,--gc-sections --specs=nano.specs -T ${LINKER_SCRIPT}")

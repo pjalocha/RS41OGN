@@ -213,8 +213,8 @@ class RFM_TRX
 
    void WriteCarrFreq(uint32_t Freq)                                   // [Hz]
    {
-#ifdef WITH_XTAL26MHZ
-     WriteCarrFreq_Xtal30MHz((((Freq/4)*15+6)/13)*4);
+#ifdef WITH_XTAL26MHZ                                                  // if Xtal 26MHz (nominal 30MHz)
+     WriteCarrFreq_Xtal30MHz((((Freq/4)*15+6)/13)*4);                  // convert the frequency factor
 #else
      WriteCarrFreq_Xtal30MHz(Freq);
 #endif
