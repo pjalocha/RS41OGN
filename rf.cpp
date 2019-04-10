@@ -246,14 +246,15 @@ extern "C"
     if(TxPkt1) TxPktData1=TxPkt1->Byte();                                      // if 2nd if not NULL then get its data
           else TxPktData1=TxPktData0;                                          // but if NULL then take copy of the 1st packet
 
-    TimeSlot(800-TimeSync_msTime(), TxPktData0, TxTime);                       // run a Time-Slot till 0.800sec
+    TimeSlot(800-TimeSync_msTime(), TxPktData0, TxTime);                       // run the 1st Time-Slot till 0.800sec
 
     TxChan = RF_FreqPlan.getChannel(RF_SlotTime, 1, 1);
+    TRX.setChannel(TxChan);
 
     XorShift32(GPS_Random);
     TxTime = (GPS_Random&0x3F)+1; TxTime*=6;
 
-    TimeSlot(1250-TimeSync_msTime(), TxPktData1, TxTime);
+    TimeSlot(1250-TimeSync_msTime(), TxPktData1, TxTime);                      // run the 2nd Time-Slot
 
     if(TxPkt0) RF_TxFIFO.Read();
     if(TxPkt1) RF_TxFIFO.Read();
