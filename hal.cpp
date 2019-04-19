@@ -17,30 +17,35 @@
 // ======================================================================
 // list of (known) STM32F1 pins
 // many of these are thanks to Jarek, SP5JRM
+// another, great, source of information: https://github.com/bazjo/RS41_Hardware
 
 // PA0  (out) =
 // PA1  (in ) =
 // PA2  (in ) =
 // PA3  (out) =
 // PA4  (   ) =
-// PA5  (ain) = ADC1 AIN (Power vaoltage)
+// PA5  (ain) = ADC1 AIN (battery voltage)
 // PA6  (ain) = ADC1 AIN (Power button)
 // PA7  (in ) =
 // PA8  (in ) =
 // PA9  (   ) = UART1_TX (GPS)
 // PA10 (   ) = UART1_RX (GPS)
 // PA11 (out) =
-// PA12 (out) = power converter: HIGH = power OFF ?
+// PA12 (out) = LOW = power ON, HIGH = power OFF
+// PA13 (   ) = SWDIO
+// PA14 (   ) = SWCLK
+// PA15 (   ) = GPS reset (low-active)
 
-// PB1  (   ) = internal resistive temperature sensor ?
-// PB2  (out) =
+// PB0
+// PB1  (   ) = (ext. pull-down) internal resistive temperature sensor ?
+// PB2  (out) = EEPROM CS
 // PB3  (in ) =
 // PB4  (in ) =
 // PB5  (in ) =
 // PB6  (out) =
 // PB7  (out) = Green LED, low-active
 // PB8  (out) = Red   LED, low-active
-// PB9  (out) =
+// PB9  (out) = (ext. pull down)
 // PB10 (   ) = UART3_TX (external serial port)
 // PB11 (   ) = UART3_RX
 // PB12 (out) = but keep it as input, otherwise one of the GPS antenna heaters turns on

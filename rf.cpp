@@ -186,10 +186,16 @@ extern "C"
     RF_VCC  = TRX.ReadBatVolt();
     StartRFchip();
 
-    uint16_t MCU_Vref  = ADC_Read_MCU_Vref();
-    uint16_t MCU_Vtemp = ADC_Read_MCU_Vtemp();
-    uint16_t Vsupply   = ADC_Read_Vsupply();
-    uint16_t Vbutton   = ADC_Read_Vbutton();
+    uint16_t MCU_Vref  = ADC_Read_MCU_Vref();                                 // internal reference voltage: 1.2V
+    uint16_t MCU_Vtemp = ADC_Read_MCU_Vtemp();                                // internal temperature
+    uint16_t Vsupply   = ADC_Read_Vsupply();                                  // battery voltage
+    uint16_t Vbutton   = ADC_Read_Vbutton();                                  // power-on/off button
+    static uint8_t PowerOffReq = 0;
+    if(Vsupply>MCU_Vref)                                                      // if on battery power
+    { if(Vbutton<MCU_Vref) PowerOffReq++;                                     // if button pressed
+                      else PowerOffReq=0;
+      if(PowerOffReq>5) Power_On(0);                                          // if pressed for more than 5 seconds
+    }
     uint16_t MCU_VCC   = ( ((uint32_t)120<<12)+(MCU_Vref>>1))/MCU_Vref; // [0.01V]
      int16_t MCU_Temp  = 250 + ( ( ( (int32_t)1430 - ((int32_t)1200*(int32_t)MCU_Vtemp+(MCU_Vref>>1))/MCU_Vref )*(int32_t)37 +8 )>>4); // [0.1degC]
     xSemaphoreTake(CONS_Mutex, portMAX_DELAY);

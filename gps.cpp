@@ -332,7 +332,7 @@ static void GPS_BurstComplete(void)                                        // wh
         Format_String(CONS_UART_Write, "s\n");
         xSemaphoreGive(CONS_Mutex);
 #endif
-        LED_PCB_Flash(100); }
+        LED_PCB_Flash(200); }
     }
     else                                                                  // complete but no valid lock
     { if(GPS_TimeSinceLock) { GPS_LockEnd(); GPS_TimeSinceLock=0; }
