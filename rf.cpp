@@ -179,7 +179,7 @@ extern "C"
   for( ; ; )
   { do
     { vTaskDelay(1); }
-    while(TimeSync_msTime()<290);                // wait till 300ms after PPS
+    while(TimeSync_msTime()<290);                                             // wait till 300ms after PPS
 
     SetFreqPlan();
     RF_Temp = TRX.ReadChipTemp();
@@ -190,14 +190,18 @@ extern "C"
     uint16_t MCU_Vtemp = ADC_Read_MCU_Vtemp();                                // internal temperature
     uint16_t Vsupply   = ADC_Read_Vsupply();                                  // battery voltage
     uint16_t Vbutton   = ADC_Read_Vbutton();                                  // power-on/off button
-    static uint8_t PowerOffReq = 0;
-    if(Vsupply>MCU_Vref)                                                      // if on battery power
-    { if(Vbutton<MCU_Vref) PowerOffReq++;                                     // if button pressed
-                      else PowerOffReq=0;
-      if(PowerOffReq>5) Power_On(0);                                          // if pressed for more than 5 seconds
-    }
+
+    static uint8_t PwrButton = 0;
+    uint16_t Vthresh = Vsupply-Vsupply/16;
+    if(Vsupply>MCU_Vref/2)                                                    // if on battery power
+    { uint8_t Pressed = Vbutton>Vthresh;                                      // if button pressed
+      PwrButton = (PwrButton<<1) | Pressed;
+      if( ((PwrButton&0xF0)==0xF0) && ((PwrButton&0x03)==0) ) Power_On(0);                                          // if pressed for more than 5 seconds
+    } else PwrButton=0;
+
     uint16_t MCU_VCC   = ( ((uint32_t)120<<12)+(MCU_Vref>>1))/MCU_Vref; // [0.01V]
      int16_t MCU_Temp  = 250 + ( ( ( (int32_t)1430 - ((int32_t)1200*(int32_t)MCU_Vtemp+(MCU_Vref>>1))/MCU_Vref )*(int32_t)37 +8 )>>4); // [0.1degC]
+#ifdef DEBUG_PRINT
     xSemaphoreTake(CONS_Mutex, portMAX_DELAY);
     Format_String(CONS_UART_Write, "ADC: Vref=");
     Format_UnsDec(CONS_UART_Write, MCU_Vref, 4);
@@ -207,12 +211,17 @@ extern "C"
     Format_UnsDec(CONS_UART_Write, Vsupply, 4);
     Format_String(CONS_UART_Write,", Vbutton=");
     Format_UnsDec(CONS_UART_Write, Vbutton, 4);
+    Format_String(CONS_UART_Write,", Vthresh=");
+    Format_UnsDec(CONS_UART_Write, Vthresh, 4);
     Format_String(CONS_UART_Write,", VCC=");
     Format_UnsDec(CONS_UART_Write, MCU_VCC, 4, 2);
     Format_String(CONS_UART_Write,", Temp=");
     Format_SignDec(CONS_UART_Write, MCU_Temp, 3, 1);
+    Format_String(CONS_UART_Write,", PwrButon=");
+    Format_Hex(CONS_UART_Write, PwrButton);
     Format_String(CONS_UART_Write, "\n");
     xSemaphoreGive(CONS_Mutex);
+#endif
 
     GPS_Position *Position = GPS_getPosition();
     if( Position && Position->hasGPS && Position->isValid() )
